@@ -60,8 +60,6 @@ set_global_assignment -name VERILOG_FILE LCD_TEST2.v
 set_global_assignment -name VERILOG_FILE LCD_Controller.v
 set_global_assignment -name VERILOG_FILE Mod_Teste.v
 set_global_assignment -name VECTOR_WAVEFORM_FILE "somador-wave.vwf"
-set_global_assignment -name INCREMENTAL_VECTOR_INPUT_SOURCE "C:/LASD/2021.1/william-119111128/shift-wave.vwf"
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_location_assignment PIN_N25 -to SW[0]
 set_location_assignment PIN_N26 -to SW[1]
 set_location_assignment PIN_P25 -to SW[2]
@@ -487,3 +485,10 @@ set_location_assignment PIN_V24 -to GPIO_1[32]
 set_location_assignment PIN_V23 -to GPIO_1[33]
 set_location_assignment PIN_W25 -to GPIO_1[34]
 set_location_assignment PIN_W23 -to GPIO_1[35]
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name VERILOG_FILE bcdDecoder.v
+set_global_assignment -name VERILOG_FILE DivFreq.v
+set_global_assignment -name VERILOG_FILE Cont_M10.v
+set_global_assignment -name VERILOG_FILE ULA.v
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name INCREMENTAL_VECTOR_INPUT_SOURCE "C:/LASD/2021.1/william-119111128/somador-wave.vwf"

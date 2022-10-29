@@ -1,0 +1,6 @@
+module Cont_M10(input clk, input [3:0] contador)
+
+	always(posedge clk)
+		contador += contador == 9 ? 0 : 1;
+
+endmodule

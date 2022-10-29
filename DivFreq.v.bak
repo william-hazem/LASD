@@ -1,0 +1,14 @@
+module DE(input Clk_50MHz, output Clk_1Hz);
+
+	reg [31:0] contador = 32'd0;
+	
+	always @(posedge Clk_50MHz)
+	begin
+		contador += 1;
+		
+		if(contador >= (50e6)
+		
+	end
+
+
+endmodule

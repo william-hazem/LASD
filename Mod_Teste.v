@@ -35,50 +35,43 @@ LCD_TEST MyLCD (
 );
 //---------- modifique a partir daqui --------
 
-assign LEDG[0] = KEY[1];
+//ULA somador(SW[3:0], SW[7:4], SW[17:16], LEDR[3:0]);
 
-/// ver somador-wave (testa soma e subtração)
-ULA somador(SW[3:0], SW[7:4], SW[17], LEDR[3:0]);
+bcdDecoder bcd0(SW[11:8], HEX3);
 
-/// ver shift-wave (testa as operações de shifts)
-ULA shift(SW[3:0], SW[7:4], SW[17:16], LEDR[7:4]);
+DivFreq dv(CLOCK_50, LEDG[0]);
+wire [3:0] contador;
+Cont_M10 cont10(.clk(LEDG[0]), .res(KEY[1]), .contador(contador));
+bcdDecoder bcd1(contador, HEX1);
+
+/// Desafio - sprint 2
+DivFreq #(.nHz(18)) dv2(CLOCK_50, LEDG[1]);
+Animacao anileds(LEDG[1], LEDR[17:0]);
+
+
 
 endmodule
 
-//// Parte 1 do exercicio
-
-module ULA_1(input [3:0]A, B, input op, output reg[3:0]R);
+module Animacao(input clk, output reg[17:0] leds);
 	
-//	always@(A or B or op) begin
-//		if(op == 0)
-//			R = A + B;
-//		else
-//			R = A - B;
-//			
-//	end //!always
-	
-	/// a solução em uma linha de código
-	always@(*) R = op == 1? A - B : A + B;
-	
-endmodule
-
-
-//// Parte 2 - extra
-/// 0 - soma 
-/// 1 - subtrai
-/// 2 - right shift
-/// 3 - left shift
-module ULA(input [3:0]A, B, input[1:0] Sel, output reg[3:0]Res);
-	
-	always@(*) begin
-		if(Sel == 2'b00)
-			Res = A + B;
-		else if(Sel == 2'b01)
-			Res = A - B;
-		else if(Sel == 2'b10)
-			Res = A >> B;
-		else //(Sel == 2'b11)
-			Res = A << B;
+	reg init = 0;
+	reg dir = 0; // 0 - esquerda, 1 - direita
+	always @(posedge clk)
+	begin
+		if(!init)
+		begin
+			leds = 1;
+			init = 1;
+		end
+		/// determina a direção
+		if(leds[0])
+			dir = 0;
+		else if(leds[17])
+			dir = 1;
+		/// faz shift 
+		leds = dir ? leds >> 1 : leds << 1;
+		
 	end
 	
-endmodule 
+endmodule
+
