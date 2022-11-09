@@ -34,20 +34,20 @@ LCD_TEST MyLCD (
 .LCD_RS ( LCD_RS )
 );
 //---------- modifique a partir daqui --------
-
-//ULA somador(SW[3:0], SW[7:4], SW[17:16], LEDR[3:0]);
-
-bcdDecoder bcd0(SW[11:8], HEX3);
-
-DivFreq dv(CLOCK_50, LEDG[0]);
-wire [3:0] contador;
-Cont_M10 cont10(.clk(LEDG[0]), .res(KEY[1]), .contador(contador));
-bcdDecoder bcd1(contador, HEX1);
-
-/// Desafio - sprint 2
-DivFreq #(.nHz(18)) dv2(CLOCK_50, LEDG[1]);
-Animacao anileds(LEDG[1], LEDR[17:0]);
-
+	
+	assign LEDG[8] = ~KEY[1];
+	
+	bcdDecoder hex0(SW[7:0], HEX0);
+	bcdDecoder hex1(SW[7:0], HEX1);
+	assign LEDG[7:0] = w_d0x0[7:0];
+	assign LEDR[7:0] = w_d0x1[7:0];
+	
+	RegisterFile bancoReg(
+		.clk(KEY[1]), .we3(SW[17]),
+		.wa3(SW[16:14]), .ra1(SW[13:11]),
+		.ra2(SW[10:8]), .wd3(SW[7:0]),
+		.rd1(w_d0x0[7:0]), .rd2(w_d0x1[7:0])
+	);
 
 
 endmodule
