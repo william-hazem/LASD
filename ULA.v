@@ -4,17 +4,20 @@
 /// 2 - right shift
 /// 3 - left shift
 
-module ULA(input [3:0]A, B, input[1:0] Sel, output reg[3:0]Res);
+module ULA(input [7:0]SrcA, SrcB, input[2:0] ULAControl, output reg[7:0]ULAResult, output reg Z);
 	
 	always@(*) begin
-		if(Sel == 2'b00)
-			Res = A + B;
-		else if(Sel == 2'b01)
-			Res = A - B;
-		else if(Sel == 2'b10)
-			Res = A >> B;
-		else //(Sel == 2'b11)
-			Res = A << B;
+		case (ULAControl)
+		3'b000: ULAResult = SrcA & SrcB;
+		3'b001: ULAResult = SrcA | SrcB;
+		3'b010: ULAResult = SrcA + SrcB;
+		3'b011: ULAResult = ~(SrcA | SrcB);
+		3'b110: ULAResult = SrcA - SrcB;
+		3'b111: ULAResult = SrcA < SrcB;
+		default: ULAResult = 0;
+		endcase
+		
+		Z = !ULAResult ? 1 : 0;
 	end
 	
 endmodule 

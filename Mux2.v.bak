@@ -1,0 +1,6 @@
+module Mux2(input control, input A, input B, output reg Y);
+
+	always(*)
+		Y = control ? A : B;
+
+endmodule

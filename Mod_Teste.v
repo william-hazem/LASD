@@ -37,17 +37,22 @@ LCD_TEST MyLCD (
 	
 	assign LEDG[8] = ~KEY[1];
 	
-	bcdDecoder hex0(SW[7:0], HEX0);
-	bcdDecoder hex1(SW[7:0], HEX1);
-	assign LEDG[7:0] = w_d0x0[7:0];
-	assign LEDR[7:0] = w_d0x1[7:0];
+	bcdDecoder hex0(SW[3:0], HEX0);
+	bcdDecoder hex1(SW[7:4], HEX1);
 	
 	RegisterFile bancoReg(
-		.clk(KEY[1]), .we3(SW[17]),
+		.clk(KEY[1]), .we3(1'b1),
 		.wa3(SW[16:14]), .ra1(SW[13:11]),
-		.ra2(SW[10:8]), .wd3(SW[7:0]),
-		.rd1(w_d0x0[7:0]), .rd2(w_d0x1[7:0])
+		.ra2(3'b010), .wd3(SW[7:0]),
+		.rd1(w_d0x0[7:0]), .rd2(w_d1x0[7:0])
 	);
+	
+	wire [7:0]srcA, srcB;
+	assign srcA = w_d0x0[7:0];
+	
+	Mux2 mUlaSrc(.control(SW[17]), .x0(w_d1x0), .x1(8'h07), .Y(srcB));
+	
+	ULA ula(.SrcA(srcA), .SrcB(srcB), .ULAControl(SW[10:8]), .ULAResult(w_d0x4), .Z(LEDG[0]));
 
 
 endmodule
