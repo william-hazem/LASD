@@ -33,27 +33,52 @@ LCD_TEST MyLCD (
 .LCD_EN ( LCD_EN ),
 .LCD_RS ( LCD_RS )
 );
-//---------- modifique a partir daqui --------
 	
 	assign LEDG[8] = ~KEY[1];
 	
-	bcdDecoder hex0(SW[3:0], HEX0);
-	bcdDecoder hex1(SW[7:4], HEX1);
+	// --- CPU MIPS
 	
-	RegisterFile bancoReg(
-		.clk(KEY[1]), .we3(1'b1),
-		.wa3(SW[16:14]), .ra1(SW[13:11]),
-		.ra2(3'b010), .wd3(SW[7:0]),
-		.rd1(w_d0x0[7:0]), .rd2(w_d1x0[7:0])
+	wire clk = KEY[1], Z = LEDG[0];
+	
+	wire [7:0]wPC, wPC_;
+	assign wPC_ = wPC + 1;
+	
+	ModPC PC(.clk(clk), .PCi(wPC_), .PCo(wPC));
+	
+	wire [31:0] Instr;
+	MemoriaInstrucao(.A(wPC), .RD(Instr));
+	
+	
+	wire [5:0] OP = Instr[31:26];
+	wire [5:0] Funct = Instr[5:0];
+	wire RegWrite, RegDst, ULASrc, Branch, MemWrite, MemtoReg, Jump;
+	wire [2:0]ULAControl;
+	
+	UnidadeControle UC(
+		.OP(OP), .Funct(Funct), .RegWrite(RegWrite), 
+		.RegDst(RegDst), .ULASrc(ULASrc), .Branch(Branch), 
+		.MemWrite(MemWrite), .MemtoReg(MemtoReg), .Jump(Jump),
+		.ULAControl(ULAControl)
 	);
 	
-	wire [7:0]srcA, srcB;
-	assign srcA = w_d0x0[7:0];
+	wire [7:0]srcA, srcB, rd2, Result, ULAResult;
 	
-	Mux2 mUlaSrc(.control(SW[17]), .x0(w_d1x0), .x1(8'h07), .Y(srcB));
+	wire [2:0]wa3 = RegDst ? Instr[15:11] : Instr[20:16];
 	
-	ULA ula(.SrcA(srcA), .SrcB(srcB), .ULAControl(SW[10:8]), .ULAResult(w_d0x4), .Z(LEDG[0]));
-
+	RegisterFile bancoReg(
+		.clk(clk), .we3(RegWrite),
+		.ra1(Instr[25:21]), .rd1(srcA),
+		.ra2(Instr[20:16]), .rd2(rd2),
+		.wa3(wa3), .wd3(Result)
+	);
+	
+	assign srcB = ULASrc ? Instr[7:0] : rd2;
+	
+	assign Result = ULAResult;
+	
+	ULA ula(.SrcA(srcA), .SrcB(srcB), .ULAControl(ULAControl), .ULAResult(ULAResult), .Z(Z));
+	
+	
 
 endmodule
 
