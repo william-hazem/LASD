@@ -10,7 +10,9 @@ input				clk,	///< clock
 input [2:0] 	ra1,	///< endereço de leitura 1
 					ra2,	///< endereço de leitura 2
 output reg[7:0]rd1,	///< saida de dados 1
-					rd2	///< saida de dados 2
+					rd2,	///< saida de dados 2
+input dataClk,			///< clock auxiliar para comutar a saída
+output [63:0]data  ///< saida de dados auxiliar para debug
 );
 
 	/// instância um banco de registradores
@@ -27,5 +29,12 @@ output reg[7:0]rd1,	///< saida de dados 1
 		rd1 = registradores[ra1];
 		rd2 = registradores[ra2];
 	end
+	
+	
+	
+
+	assign data = {registradores[0], registradores[1], registradores[2], registradores[3], registradores[4], registradores[5], registradores[6], registradores[7]};
+		
+
 
 endmodule

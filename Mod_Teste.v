@@ -36,10 +36,12 @@ LCD_TEST MyLCD (
 	
 	assign LEDG[8] = ~KEY[1];
 	
+	wire [63:0]LCDBUS = {w_d0x0,w_d0x1,w_d0x2,w_d0x3,w_d1x0,w_d1x1,w_d1x2,w_d1x3};
+	assign w_d0x4 = wPC;
 	// --- CPU MIPS
 	
-	wire clk = KEY[1], Z = LEDG[0];
-	
+	wire clk = KEY[1], Z;
+	assign LEDG[0] = Z;
 	wire [7:0]wPC, wPC_;
 	assign wPC_ = wPC + 1;
 	
@@ -62,22 +64,32 @@ LCD_TEST MyLCD (
 	);
 	
 	wire [7:0]srcA, srcB, rd2, Result, ULAResult;
+	wire [9:0]data;
 	
 	wire [2:0]wa3 = RegDst ? Instr[15:11] : Instr[20:16];
-	
+	wire w_clockData;
 	RegisterFile bancoReg(
 		.clk(clk), .we3(RegWrite),
 		.ra1(Instr[25:21]), .rd1(srcA),
 		.ra2(Instr[20:16]), .rd2(rd2),
-		.wa3(wa3), .wd3(Result)
+		.wa3(wa3), .wd3(Result),
+		.dataClk(CLOCK_50), .data(LCDBUS)
 	);
+	//DivFreq #(.nHz(1000000)) Divdebug(.Clk_50MHz(CLOCK_50), .clk_out(w_clockData) );
+	
+	//LCDdebug(.clk(CLOCK_50), .lcdbus(LCDBUS), .data(data));
 	
 	assign srcB = ULASrc ? Instr[7:0] : rd2;
 	
 	assign Result = ULAResult;
 	
+	bcdDecoder(ULAResult[3:0], HEX0);
+	bcdDecoder(ULAResult[7:4], HEX1);
+	bcdDecoder(data[3:0], HEX4);
+	bcdDecoder(data[7:4], HEX5);
 	ULA ula(.SrcA(srcA), .SrcB(srcB), .ULAControl(ULAControl), .ULAResult(ULAResult), .Z(Z));
 	
+	assign LEDR = {RegWrite, RegDst,ULASrc,ULAControl,Branch,MemWrite,MemtoReg,Jump};
 	
 
 endmodule

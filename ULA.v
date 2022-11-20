@@ -17,6 +17,7 @@ module ULA(input [7:0]SrcA, SrcB, input[2:0] ULAControl, output reg[7:0]ULAResul
 		default: ULAResult = 0;
 		endcase
 		
+		
 		Z = !ULAResult ? 1 : 0;
 	end
 	

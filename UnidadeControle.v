@@ -31,6 +31,7 @@ always@* begin
 	6'b100010: ULAControl = 3'b110;  // SUB
 	6'b100100: ULAControl = 3'b000;	// AND
 	6'b100101: ULAControl = 3'b001;	// OR
+	6'b100111: ULAControl = 3'b011;  // NOR
 	6'b101010: ULAControl = 3'b111;	// SLT
 	endcase
 
