@@ -34,54 +34,69 @@ LCD_TEST MyLCD (
 .LCD_RS ( LCD_RS )
 );
 	
-	assign LEDG[8] = ~KEY[1];
+	assign LEDG[8] = ~clk;
 	
+	/// Barramento de dados do banco de registro para o Display LCD
 	wire [63:0]LCDBUS = {w_d0x0,w_d0x1,w_d0x2,w_d0x3,w_d1x0,w_d1x1,w_d1x2,w_d1x3};
 	assign w_d0x4 = wPC;
-	// --- CPU MIPS
 	
-	wire clk = KEY[1], Z;
+	wire clk, Z;
+	/// Gerador de pulso 1 Hz
+	DivFreq #(.nHz(1)) m_Clock1Hz(.Clk_50MHz(CLOCK_50), .clk_out(clk));
+	
+	
 	assign LEDG[0] = Z;
-	wire [7:0]wPC, wPC_;
+	wire [7:0]wPC, wPC_, w_RData;
 	assign wPC_ = wPC + 1;
 	
 	ModPC PC(.clk(clk), .PCi(wPC_), .PCo(wPC));
 	
-	wire [31:0] Instr;
-	MemoriaInstrucao(.A(wPC), .RD(Instr));
+	wire [31:0] w_Instr;
+	RomInstMem(.address(wPC), .clock(CLOCK_50), .q(w_Instr));
+	RamDataMem DataMem(
+		.address(ULAResult),
+		.clock(CLOCK_50),
+		.data(rd2),
+		.wren(MemWrite),
+		.q(w_RData));
 	
+	mux2x1 MuxDDest(
+		.data0x(ULAResult),
+		.data1x(w_RData),
+		.sel(MemtoReg),
+		.result(w_Result));
 	
-	wire [5:0] OP = Instr[31:26];
-	wire [5:0] Funct = Instr[5:0];
+	wire [5:0] OP = w_Instr[31:26];
+	wire [5:0] Funct = w_Instr[5:0];
 	wire RegWrite, RegDst, ULASrc, Branch, MemWrite, MemtoReg, Jump;
 	wire [2:0]ULAControl;
 	
-	UnidadeControle UC(
+	UnidadeControle ControlUnit(
 		.OP(OP), .Funct(Funct), .RegWrite(RegWrite), 
 		.RegDst(RegDst), .ULASrc(ULASrc), .Branch(Branch), 
 		.MemWrite(MemWrite), .MemtoReg(MemtoReg), .Jump(Jump),
 		.ULAControl(ULAControl)
 	);
 	
-	wire [7:0]srcA, srcB, rd2, Result, ULAResult;
+	wire [7:0]srcA, srcB, rd2, w_Result, ULAResult;
 	wire [9:0]data;
 	
-	wire [2:0]wa3 = RegDst ? Instr[15:11] : Instr[20:16];
+	wire [2:0]wa3 = RegDst ? w_Instr[15:11] : w_Instr[20:16];
 	wire w_clockData;
 	RegisterFile bancoReg(
 		.clk(clk), .we3(RegWrite),
-		.ra1(Instr[25:21]), .rd1(srcA),
-		.ra2(Instr[20:16]), .rd2(rd2),
-		.wa3(wa3), .wd3(Result),
+		.ra1(w_Instr[25:21]), .rd1(srcA),
+		.ra2(w_Instr[20:16]), .rd2(rd2),
+		.wa3(wa3), .wd3(w_Result),
 		.dataClk(CLOCK_50), .data(LCDBUS)
 	);
 	//DivFreq #(.nHz(1000000)) Divdebug(.Clk_50MHz(CLOCK_50), .clk_out(w_clockData) );
 	
 	//LCDdebug(.clk(CLOCK_50), .lcdbus(LCDBUS), .data(data));
 	
-	assign srcB = ULASrc ? Instr[7:0] : rd2;
+	assign srcB = ULASrc ? w_Instr[7:0] : rd2;
 	
-	assign Result = ULAResult;
+	
 	
 	bcdDecoder(ULAResult[3:0], HEX0);
 	bcdDecoder(ULAResult[7:4], HEX1);
