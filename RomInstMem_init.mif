@@ -1,31 +1,26 @@
--- Copyright (C) 1991-2013 Altera Corporation
--- Your use of Altera Corporation's design tools, logic functions 
--- and other software and tools, and its AMPP partner logic 
--- functions, and any output files from any of the foregoing 
--- (including device programming or simulation files), and any 
--- associated documentation or information are expressly subject 
--- to the terms and conditions of the Altera Program License 
--- Subscription Agreement, Altera MegaCore Function License 
--- Agreement, or other applicable license agreement, including, 
--- without limitation, that your use is for the sole purpose of 
--- programming logic devices manufactured by Altera and sold by 
--- Altera or its authorized distributors.  Please refer to the 
--- applicable agreement for further details.
-
--- Quartus II generated Memory Initialization File (.mif)
-
-WIDTH=32;
+--Arquivo gerado para o LASD - UFCG - Prof. Rafael Lima
+WIDTH = 32;
 DEPTH=256;
-
-ADDRESS_RADIX=HEX;
+ADDRESS_RADIX=UNS;
 DATA_RADIX=BIN;
-
 CONTENT BEGIN
-	000  :   00100000000000010000000010101011;
-	001  :   10101100000000010000000000001010;
-	002  :   10001100000000100000000000001010;
-	[003..004]  :   10101100000000100000000000001011;
-	005  :   10101100000000110000000000001100;
-	006  :   10001100000001000000000000001100;
-	[007..0FF]  :   00000000000000000000000000000000;
+0	:	00100000000000010000000000000111;
+1	:	00100000000000110000000000000011;
+2	:	00100000000000100000000011111111;
+3	:	00100000010000100000000000000001;
+4	:	00000000010000010011100000101010;
+5	:	00001000000000000000000000000011;
+6	:	00001000000000000000000000000010;
+[7..255]  :   00000000000000000000000000000000;
 END;
+
+#Assembly MIPS#
+addi $1, $0, 7
+addi $3, $0, 3
+addi $2, $0, FF
+addi $2, $2, 1
+slt $7, $2, 1
+j 3
+j 2
+#Comentarios#
+Comentários
