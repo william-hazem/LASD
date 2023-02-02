@@ -68,16 +68,38 @@ LCD_TEST MyLCD (
 	
 	wire [31:0] w_Instr;
 	RomInstMem(.address(w_PC), .clock(CLOCK_50), .q(w_Instr));
+	
+	
 	RamDataMem DataMem(
 		.address(ULAResult),
 		.clock(CLOCK_50),
-		.data(rd2),
-		.wren(MemWrite),
+		.data(w_rd2),
+		.wren(w_We),
 		.q(w_RData));
 	
-	mux2x1 MuxDDest(
+	wire w_We;					/// MemData write enable
+	wire [7:0] w_DataOut = w_d1x4;
+	ParallelOut Pout(			/// Parallel Output
+		.Address(ULAResult),
+		.RegData(w_rd2),
+		.we(MemWrite),
+		.wren(w_We),
+		.clk(clk),
+		.DataOut(w_DataOut)
+	);
+	
+	wire [7:0] w_DataIn = SW[7:0]; 	/// fio de entrada externa
+	wire [7:0] w_RegData; 	/// dados de saida do seletor interno do ParallelIn
+	ParallelIn pin(
+		.Address(ULAResult),
+		.DataIn(w_DataIn),
+		.MemData(w_RData),
+		.RegData(w_RegData)
+	);
+	
+	mux2x1 MuxDDest(			/// Seletor p/ write_data do RF
 		.data0x(ULAResult),
-		.data1x(w_RData),
+		.data1x(w_RegData),
 		.sel(MemtoReg),
 		.result(w_Result));
 	
@@ -93,7 +115,7 @@ LCD_TEST MyLCD (
 		.ULAControl(ULAControl)
 	);
 	
-	wire [7:0]srcA, srcB, rd2, w_Result, ULAResult;
+	wire [7:0]srcA, srcB, w_rd2, w_Result, ULAResult;
 	wire [9:0]data;
 	
 	wire [2:0]wa3 = RegDst ? w_Instr[15:11] : w_Instr[20:16];
@@ -101,7 +123,7 @@ LCD_TEST MyLCD (
 	RegisterFile bancoReg(
 		.clk(clk), .we3(RegWrite),
 		.ra1(w_Instr[25:21]), .rd1(srcA),
-		.ra2(w_Instr[20:16]), .rd2(rd2),
+		.ra2(w_Instr[20:16]), .rd2(w_rd2),
 		.wa3(wa3), .wd3(w_Result),
 		.dataClk(CLOCK_50), .data(LCDBUS)
 	);
@@ -109,7 +131,7 @@ LCD_TEST MyLCD (
 	
 	//LCDdebug(.clk(CLOCK_50), .lcdbus(LCDBUS), .data(data));
 	
-	assign srcB = ULASrc ? w_Instr[7:0] : rd2;
+	assign srcB = ULASrc ? w_Instr[7:0] : w_rd2;
 	
 	
 	
