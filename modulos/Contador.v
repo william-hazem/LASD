@@ -12,18 +12,20 @@ input reset
 
 always @(posedge clock)
 begin
-	cont = cont + 1;
-	if(cont == (2 << n - 1))
-		of = 1;
-	else
-		of = 0;
-end
-
-always @(negedge clock)
+	
 	if(!reset)
 	begin
 		cont = 0;
 		of = 0;
 	end
+	else begin
+		cont = cont + 1;
+		if(cont == (2 << n - 1))
+			of = 1;
+		else
+			of = 0;
+	end
+end
+
 
 endmodule 

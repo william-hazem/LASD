@@ -1,6 +1,6 @@
 /**
  * Módulo PWM 2
- * Frequência do sinal gerado 20 Hz
+ * Frequência do sinal gerado 200 Hz
 **/
 
 module PWM2
@@ -13,14 +13,14 @@ input[15:0] cr2		/// compare register 2
 );
 
 
-reg clk_ps;					/// clock prescaled
-wire[15:0]contador;		/// contador
+wire clk_ps;					/// clock prescaled
+wire [15:0]contador;		/// contador
 wire overflow;				/// overflow bit
 reg reset;
 
-DivFreq #(nHz(20000)) prescale(.Clk_50Mhz(clock), .clk_out(clk_ps));	/// saída de 200 kHz
+DivFreq #(.nHz(2000000)) prescale(.Clk_50MHz(clock), .clk_out(clk_ps));	/// saída de 200 kHz
 
-Contador ModContador(.clock(clk_ps), .cont(contador), .of(overflow), .reset(reset));
+Contador #(.n(16)) ModContador(.clock(clk_ps), .cont(contador), .of(overflow), .reset(reset));
 
 
 always @(posedge clk_ps)

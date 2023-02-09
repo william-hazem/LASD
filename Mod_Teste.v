@@ -33,8 +33,10 @@ LCD_TEST MyLCD (
 .LCD_EN ( LCD_EN ),
 .LCD_RS ( LCD_RS )
 );
+
+
 	
-	assign LEDG[8] = ~clk;
+	/*assign LEDG[8] = ~clk;
 	
 	/// Barramento de dados do banco de registro para o Display LCD
 	wire [63:0]LCDBUS = {w_d0x0,w_d0x1,w_d0x2,w_d0x3,w_d1x0,w_d1x1,w_d1x2,w_d1x3};
@@ -165,7 +167,18 @@ module Animacao(input clk, output reg[17:0] leds);
 		/// faz shift 
 		leds = dir ? leds >> 1 : leds << 1;
 		
-	end
+	end*/
+	
+	wire [7:0] sarResult;
+	wire [3:0] i;
+	bcdDecoder(sarResult[3:0], HEX0);
+	bcdDecoder(sarResult[7:4], HEX1);
+	bcdDecoder(i, HEX3);
+	assign LEDG[5] = KEY[2];
+	assign LEDG[3] = GPIO_0[3];
+	SAR _SAR (.clock(CLOCK_50), .ecmp(GPIO_0[3]), .start(KEY[2]), .adcv(sarResult), .eoc(LEDG[7]), .dacPWM(GPIO_0[0]), .swtPWM(GPIO_0[1]), .i(i));
+	
+	
 	
 endmodule
 

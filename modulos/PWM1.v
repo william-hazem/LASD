@@ -15,14 +15,13 @@ input[15:0] cr2		/// compare register 2
 
 
 
-reg clk_ps;					/// clock prescaled
 wire[15:0]contador;		/// contador
 wire overflow;				/// overflow bit
 reg reset;
-Contador ModContador(.clock(clk_ps), .cont(contador), .of(overflow), .reset(reset));
+Contador ModContador(.clock(clock), .cont(contador), .of(overflow), .reset(reset));
 
 
-always @(posedge clk_ps)
+always @(posedge clock)
 begin
 	/// lógica de reset do contador
 	if(contador >= 5000)
